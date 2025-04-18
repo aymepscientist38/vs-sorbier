@@ -1,9 +1,460 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-   <title>Test</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistiques Match - GF38 vs Sorbier (1ère Mi-temps)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+        .container {
+            width: 100%;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+        header {
+            background-color: #1a73e8;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 20px;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: background 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        .tab.active {
+            border-bottom: 3px solid #1a73e8;
+            background-color: #e8f0fe;
+            font-weight: bold;
+        }
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .selector {
+            margin-bottom: 20px;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background-color: white;
+            margin-bottom: 10px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .stat-item {
+            padding: 10px;
+            background-color: #f6f8fa;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin: 20px 0;
+        }
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+        }
+        .checkbox-item input {
+            margin-right: 8px;
+        }
+        .button {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .stat-category {
+            margin-top: 15px;
+            margin-bottom: 5px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #ddd;
+            font-weight: bold;
+        }
+        @media (max-width: 600px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .checkbox-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-   <h1>Ceci est un test</h1>
+    <div class="container">
+        <header>
+            <h1>Statistiques Match - GF38 vs Sorbier</h1>
+            <h2>1ère Mi-temps</h2>
+        </header>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="openTab('individual')">Statistiques Individuelles</div>
+            <div class="tab" onclick="openTab('comparison')">Comparaison</div>
+        </div>
+        
+        <div id="individual" class="tab-content active">
+            <div class="selector">
+                <label for="player-select">Sélectionner une joueuse :</label>
+                <select id="player-select" onchange="showPlayerStats()">
+                    <option value="">-- Choisir une joueuse --</option>
+                </select>
+            </div>
+            
+            <div id="player-stats" class="stats-container">
+                <div class="stats-header">
+                    <h3 id="player-name">Sélectionnez une joueuse</h3>
+                    <p id="player-number"></p>
+                </div>
+                
+                <div class="stat-category">Statistiques offensives</div>
+                <div class="stats-grid" id="offensive-stats">
+                    <!-- Les statistiques offensives seront ajoutées ici -->
+                </div>
+                
+                <div class="stat-category">Passes</div>
+                <div class="stats-grid" id="passing-stats">
+                    <!-- Les statistiques de passes seront ajoutées ici -->
+                </div>
+                
+                <div class="stat-category">Statistiques défensives</div>
+                <div class="stats-grid" id="defensive-stats">
+                    <!-- Les statistiques défensives seront ajoutées ici -->
+                </div>
+            </div>
+        </div>
+        
+        <div id="comparison" class="tab-content">
+            <div class="selector">
+                <label for="player1-select">Joueuse 1 :</label>
+                <select id="player1-select">
+                    <option value="">-- Choisir une joueuse --</option>
+                </select>
+                
+                <label for="player2-select">Joueuse 2 :</label>
+                <select id="player2-select">
+                    <option value="">-- Choisir une joueuse --</option>
+                </select>
+            </div>
+            
+            <div class="stat-selection">
+                <h3>Sélectionnez les statistiques à comparer :</h3>
+                <div class="checkbox-grid" id="stat-checkboxes">
+                    <!-- Les cases à cocher de statistiques seront ajoutées ici -->
+                </div>
+                <button class="button" onclick="comparePlayersRadar()">Comparer</button>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="radar-chart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Importation de Chart.js pour les graphiques -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    
+    <script>
+        // Données des joueuses (extraites du CSV)
+        const playersData = [
+            {"numero":"1","nom":"Clara","stats":{"Centre réussi":0,"Centre loupé":0,"Passe courte réussie":5,"Passe courte loupée":0,"Passe moyenne réussie":2,"Passe moyenne loupée":5,"Passe longue réussie":3,"Passe longue loupée":1,"But":0,"Tir cadré":0,"Tir non cadré":0,"Tacle réussi":0,"Tacle loupé":0,"Interception":2,"Dribble":0,"Passe décisive":0,"Total Passes Réussies":10,"Total Passes Échouées":6,"Précision Passes":63}},
+            {"numero":"2","nom":"Kala","stats":{"Centre réussi":0,"Centre loupé":0,"Passe courte réussie":3,"Passe courte loupée":0,"Passe moyenne réussie":1,"Passe moyenne loupée":0,"Passe longue réussie":1,"Passe longue loupée":0,"But":0,"Tir cadré":0,"Tir non cadré":0,"Tacle réussi":0,"Tacle loupé":1,"Interception":1,"Dribble":0,"Passe décisive":0,"Total Passes Réussies":5,"Total Passes Échouées":0,"Précision Passes":100}},
+            {"numero":"3","nom":"Sylvie","stats":{"Centre réussi":0,"Centre loupé":0,"Passe courte réussie":2,"Passe courte loupée":0,"Passe moyenne réussie":1,"Passe moyenne loupée":0,"Passe longue réussie":2,"Passe longue loupée":1,"But":0,"Tir cadré":0,"Tir non cadré":0,"Tacle réussi":2,"Tacle loupé":0,"Interception":2,"Dribble":0,"Passe décisive":0,"Total Passes Réussies":5,"Total Passes Échouées":1,"Précision Passes":83}},
+            {"numero":"4","nom":"Anna","stats":{"Centre réussi":0,"Centre loupé":0,"Passe courte réussie":4,"Passe courte loupée":2,"Passe moyenne réussie":2,"Passe moyenne loupée":1,"Passe longue réussie":1,"Passe longue loupée":0,"But":0,"Tir cadré":0,"Tir non cadré":0,"Tacle réussi":1,"Tacle loupé":0,"Interception":0,"Dribble":0,"Passe décisive":0,"Total Passes Réussies":7,"Total Passes Échouées":3,"Précision Passes":70}},
+            {"numero":"5","nom":"Kelly","stats":{"Centre réussi":0,"Centre loupé":0,"Passe courte réussie":3,"Passe courte loupée":0,"Passe moyenne réussie":1,"Passe moyenne loupée":0,"Passe longue réussie":1,"Passe longue loupée":1,"But":0,"Tir cadré":0,"Tir non cadré":0,"Tacle réussi":0,"Tacle loupé":0,"Interception":0,"Dribble":0,"Passe décisive":0,"Total Passes Réussies":5,"Total Passes Échouées":1,"Précision Passes":83}},
+            {"numero":"6","nom":"Taina","stats":{"Centre réussi":1,"Centre loupé":0,"Passe courte réussie":4,"Passe courte loupée":0,"Passe moyenne réussie":3,"Passe moyenne loupée":0,"Passe longue réussie":0,"Passe longue loupée":0,"But":0,"Tir cadré":0,"Tir non cadré":0,"Tacle réussi":0,"Tacle loupé":0,"Interception":1,"Dribble":1,"Passe décisive":0,"Total Passes Réussies":7,"Total Passes Échouées":0,"Précision Passes":100}},
+            {"numero":"7","nom":"Aline","stats":{"Centre réussi":0,"Centre loupé":0,"Passe courte réussie":4,"Passe courte loupée":1,"Passe moyenne réussie":4,"Passe moyenne loupée":0,"Passe longue réussie":1,"Passe longue loupée":0,"But":0,"Tir cadré":0,"Tir non cadré":0,"Tacle réussi":1,"Tacle loupé":0,"Interception":0,"Dribble":1,"Passe décisive":0,"Total Passes Réussies":9,"Total Passes Échouées":1,"Précision Passes":90}},
+            {"numero":"8","nom":"Mel","stats":{"Centre réussi":0,"Centre loupé":0,"Passe courte réussie":5,"Passe courte loupée":0,"Passe moyenne réussie":3,"Passe moyenne loupée":1,"Passe longue réussie":2,"Passe longue loupée":1,"But":0,"Tir cadré":1,"Tir non cadré":0,"Tacle réussi":2,"Tacle loupé":0,"Interception":1,"Dribble":1,"Passe décisive":0,"Total Passes Réussies":10,"Total Passes Échouées":2,"Précision Passes":83}},
+            {"numero":"9","nom":"Ahlem","stats":{"Centre réussi":0,"Centre loupé":0,"Passe courte réussie":3,"Passe courte loupée":0,"Passe moyenne réussie":3,"Passe moyenne loupée":0,"Passe longue réussie":0,"Passe longue loupée":0,"But":0,"Tir cadré":0,"Tir non cadré":0,"Tacle réussi":0,"Tacle loupé":0,"Interception":0,"Dribble":0,"Passe décisive":0,"Total Passes Réussies":6,"Total Passes Échouées":0,"Précision Passes":100}},
+            {"numero":"10","nom":"Nina","stats":{"Centre réussi":0,"Centre loupé":0,"Passe courte réussie":4,"Passe courte loupée":0,"Passe moyenne réussie":2,"Passe moyenne loupée":1,"Passe longue réussie":0,"Passe longue loupée":0,"But":0,"Tir cadré":0,"Tir non cadré":0,"Tacle réussi":0,"Tacle loupé":0,"Interception":1,"Dribble":2,"Passe décisive":0,"Total Passes Réussies":6,"Total Passes Échouées":1,"Précision Passes":86}},
+            {"numero":"11","nom":"Audrey","stats":{"Centre réussi":0,"Centre loupé":1,"Passe courte réussie":2,"Passe courte loupée":0,"Passe moyenne réussie":3,"Passe moyenne loupée":0,"Passe longue réussie":1,"Passe longue loupée":0,"But":0,"Tir cadré":1,"Tir non cadré":0,"Tacle réussi":1,"Tacle loupé":0,"Interception":2,"Dribble":2,"Passe décisive":1,"Total Passes Réussies":6,"Total Passes Échouées":0,"Précision Passes":100}},
+            {"numero":"12","nom":"Valentine","stats":{"Centre réussi":0,"Centre loupé":0,"Passe courte réussie":3,"Passe courte loupée":0,"Passe moyenne réussie":2,"Passe moyenne loupée":1,"Passe longue réussie":0,"Passe longue loupée":0,"But":1,"Tir cadré":1,"Tir non cadré":0,"Tacle réussi":0,"Tacle loupé":0,"Interception":0,"Dribble":1,"Passe décisive":0,"Total Passes Réussies":5,"Total Passes Échouées":1,"Précision Passes":83}},
+            {"numero":"13","nom":"Lilou","stats":{"Centre réussi":0,"Centre loupé":0,"Passe courte réussie":3,"Passe courte loupée":0,"Passe moyenne réussie":2,"Passe moyenne loupée":0,"Passe longue réussie":0,"Passe longue loupée":0,"But":0,"Tir cadré":0,"Tir non cadré":1,"Tacle réussi":0,"Tacle loupé":0,"Interception":1,"Dribble":0,"Passe décisive":0,"Total Passes Réussies":5,"Total Passes Échouées":0,"Précision Passes":100}},
+            {"numero":"14","nom":"Yasmine","stats":{"Centre réussi":0,"Centre loupé":0,"Passe courte réussie":1,"Passe courte loupée":0,"Passe moyenne réussie":2,"Passe moyenne loupée":0,"Passe longue réussie":0,"Passe longue loupée":0,"But":0,"Tir cadré":0,"Tir non cadré":0,"Tacle réussi":0,"Tacle loupé":0,"Interception":1,"Dribble":0,"Passe décisive":0,"Total Passes Réussies":3,"Total Passes Échouées":0,"Précision Passes":100}}
+        ];
+        
+        // Configuration des statistiques pour l'affichage
+        const statsConfig = {
+            offense: [
+                { key: "But", label: "Buts" },
+                { key: "Tir cadré", label: "Tirs cadrés" },
+                { key: "Tir non cadré", label: "Tirs non cadrés" },
+                { key: "Centre réussi", label: "Centres réussis" },
+                { key: "Centre loupé", label: "Centres manqués" },
+                { key: "Dribble", label: "Dribbles" }
+            ],
+            passing: [
+                { key: "Passe courte réussie", label: "Passes courtes réussies" },
+                { key: "Passe courte loupée", label: "Passes courtes manquées" },
+                { key: "Passe moyenne réussie", label: "Passes moyennes réussies" },
+                { key: "Passe moyenne loupée", label: "Passes moyennes manquées" },
+                { key: "Passe longue réussie", label: "Passes longues réussies" },
+                { key: "Passe longue loupée", label: "Passes longues manquées" },
+                { key: "Total Passes Réussies", label: "Total passes réussies" },
+                { key: "Précision Passes", label: "Précision passes (%)" },
+                { key: "Passe décisive", label: "Passes décisives" }
+            ],
+            defense: [
+                { key: "Tacle réussi", label: "Tacles réussis" },
+                { key: "Tacle loupé", label: "Tacles manqués" },
+                { key: "Interception", label: "Interceptions" }
+            ]
+        };
+        
+        let radarChart = null;
+        
+        // Initialisation de la page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Remplir les menus déroulants avec les noms des joueuses
+            const playerSelect = document.getElementById('player-select');
+            const player1Select = document.getElementById('player1-select');
+            const player2Select = document.getElementById('player2-select');
+            
+            playersData.forEach(player => {
+                const option = document.createElement('option');
+                option.value = player.numero;
+                option.textContent = `${player.numero} - ${player.nom}`;
+                
+                // Cloner l'option pour les autres menus déroulants
+                const option1 = option.cloneNode(true);
+                const option2 = option.cloneNode(true);
+                
+                playerSelect.appendChild(option);
+                player1Select.appendChild(option1);
+                player2Select.appendChild(option2);
+            });
+            
+            // Initialiser les cases à cocher pour les statistiques
+            const statCheckboxes = document.getElementById('stat-checkboxes');
+            const allStats = [...statsConfig.offense, ...statsConfig.passing, ...statsConfig.defense];
+            
+            allStats.forEach(stat => {
+                const checkboxItem = document.createElement('div');
+                checkboxItem.className = 'checkbox-item';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `stat-${stat.key}`;
+                checkbox.value = stat.key;
+                
+                const label = document.createElement('label');
+                label.htmlFor = `stat-${stat.key}`;
+                label.textContent = stat.label;
+                
+                checkboxItem.appendChild(checkbox);
+                checkboxItem.appendChild(label);
+                statCheckboxes.appendChild(checkboxItem);
+            });
+            
+            // Présélectionner quelques statistiques importantes
+            const importantStats = ["But", "Tir cadré", "Total Passes Réussies", "Précision Passes", "Interception"];
+            importantStats.forEach(stat => {
+                const checkbox = document.getElementById(`stat-${stat}`);
+                if (checkbox) checkbox.checked = true;
+            });
+        });
+        
+        // Fonction pour afficher les statistiques d'une joueuse
+        function showPlayerStats() {
+            const playerId = document.getElementById('player-select').value;
+            const player = playersData.find(p => p.numero === playerId);
+            
+            if (!player) return;
+            
+            // Mettre à jour l'en-tête
+            document.getElementById('player-name').textContent = player.nom;
+            document.getElementById('player-number').textContent = `#${player.numero}`;
+            
+            // Remplir les statistiques offensives
+            const offensiveStats = document.getElementById('offensive-stats');
+            offensiveStats.innerHTML = '';
+            statsConfig.offense.forEach(stat => {
+                addStatItem(offensiveStats, stat.label, player.stats[stat.key] || 0);
+            });
+            
+            // Remplir les statistiques de passes
+            const passingStats = document.getElementById('passing-stats');
+            passingStats.innerHTML = '';
+            statsConfig.passing.forEach(stat => {
+                let value = player.stats[stat.key];
+                if (stat.key === "Précision Passes") value = value + "%";
+                addStatItem(passingStats, stat.label, value || 0);
+            });
+            
+            // Remplir les statistiques défensives
+            const defensiveStats = document.getElementById('defensive-stats');
+            defensiveStats.innerHTML = '';
+            statsConfig.defense.forEach(stat => {
+                addStatItem(defensiveStats, stat.label, player.stats[stat.key] || 0);
+            });
+        }
+        
+        // Fonction pour ajouter un élément de statistique
+        function addStatItem(container, label, value) {
+            const statItem = document.createElement('div');
+            statItem.className = 'stat-item';
+            
+            const statLabel = document.createElement('div');
+            statLabel.className = 'stat-label';
+            statLabel.textContent = label;
+            
+            const statValue = document.createElement('div');
+            statValue.className = 'stat-value';
+            statValue.textContent = value;
+            
+            statItem.appendChild(statLabel);
+            statItem.appendChild(statValue);
+            container.appendChild(statItem);
+        }
+        
+        // Fonction pour changer d'onglet
+        function openTab(tabName) {
+            const tabs = document.getElementsByClassName('tab');
+            const tabContents = document.getElementsByClassName('tab-content');
+            
+            // Désactiver tous les onglets et contenus
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].className = tabs[i].className.replace(" active", "");
+            }
+            
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].className = tabContents[i].className.replace(" active", "");
+            }
+            
+            // Activer l'onglet sélectionné
+            document.getElementById(tabName).className += " active";
+            document.querySelector(`.tab[onclick="openTab('${tabName}')"]`).className += " active";
+        }
+        
+        // Fonction pour comparer deux joueuses avec un graphique en radar
+        function comparePlayersRadar() {
+            const player1Id = document.getElementById('player1-select').value;
+            const player2Id = document.getElementById('player2-select').value;
+            
+            if (!player1Id || !player2Id) {
+                alert("Veuillez sélectionner deux joueuses à comparer");
+                return;
+            }
+            
+            const player1 = playersData.find(p => p.numero === player1Id);
+            const player2 = playersData.find(p => p.numero === player2Id);
+            
+            // Récupérer les statistiques sélectionnées
+            const selectedStats = [];
+            document.querySelectorAll('#stat-checkboxes input:checked').forEach(checkbox => {
+                selectedStats.push(checkbox.value);
+            });
+            
+            if (selectedStats.length === 0) {
+                alert("Veuillez sélectionner au moins une statistique à comparer");
+                return;
+            }
+            
+            // Préparer les données pour le graphique radar
+            const labels = selectedStats.map(statKey => {
+                const stat = [...statsConfig.offense, ...statsConfig.passing, ...statsConfig.defense]
+                    .find(s => s.key === statKey);
+                return stat ? stat.label : statKey;
+            });
+            
+            const datasets = [
+                {
+                    label: player1.nom,
+                    data: selectedStats.map(statKey => player1.stats[statKey] || 0),
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgb(54, 162, 235)',
+                    pointBackgroundColor: 'rgb(54, 162, 235)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgb(54, 162, 235)'
+                },
+                {
+                    label: player2.nom,
+                    data: selectedStats.map(statKey => player2.stats[statKey] || 0),
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgb(255, 99, 132)',
+                    pointBackgroundColor: 'rgb(255, 99, 132)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgb(255, 99, 132)'
+                }
+            ];
+            
+            // Créer ou mettre à jour le graphique radar
+            const ctx = document.getElementById('radar-chart').getContext('2d');
+            
+            if (radarChart) {
+                radarChart.destroy();
+            }
+            
+            radarChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    elements: {
+                        line: {
+                            borderWidth: 3
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: true
+                            },
+                            suggestedMin: 0
+                        }
+                    }
+                }
+            });
+        }
+    </script>
 </body>
 </html>
